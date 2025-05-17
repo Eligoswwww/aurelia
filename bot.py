@@ -127,8 +127,10 @@ async def user_subscribe(callback: types.CallbackQuery):
 
 # --- Startup / Shutdown ---
 async def on_startup(app: web.Application):
+    print("⚡ on_startup вызван")  # Эта строка проверит, вызывается ли startup
     await bot.set_webhook(WEBHOOK_URL)
     logger.info(f"Webhook установлен: {WEBHOOK_URL}")
+
 
 async def on_shutdown(app: web.Application):
     logger.info("Выключение бота...")
