@@ -16,6 +16,7 @@ from payments.orders import create_order, mark_order_paid
 from keyboards.admin import ADMIN_PANEL
 from keyboards.user import USER_PANEL
 
+# --- Загрузка переменных окружения ---
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -26,14 +27,16 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 if not TOKEN or not WEBHOOK_URL or not ADMIN_ID:
     raise ValueError("BOT_TOKEN, WEBHOOK_URL и ADMIN_ID должны быть заданы")
 
+# --- Настройка логгирования ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# --- Инициализация бота и диспетчера ---
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
-# --- Хэндлер команды /start ---
-@dp.message(F.text == "/start")
+# --- Обработка команды /start ---
+@dp.message(commands=["start"])
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     if user_id == ADMIN_ID:
@@ -74,7 +77,6 @@ async def admin_check_user(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "read_chapter_1")
 async def user_read_chapter_1(callback: types.CallbackQuery):
     await callback.answer()
-    # Здесь логика отправки текста первой главы (пример)
     await callback.message.answer("Вот текст Главы 1... (замени на реальный)")
 
 @dp.callback_query(F.data == "full_access")
@@ -85,7 +87,6 @@ async def user_full_access(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "open_store")
 async def user_open_store(callback: types.CallbackQuery):
     await callback.answer()
-    # Пример ссылки на магазин
     await callback.message.answer("Перейдите в наш магазин: https://example.com/store")
 
 @dp.callback_query(F.data == "subscribe")
@@ -94,7 +95,9 @@ async def user_subscribe(callback: types.CallbackQuery):
     await callback.answer()
     async with async_session() as session:
         order = await create_order(session, user_id=user_id, order_type="subscription", amount=10.0)
-    await callback.message.answer(f"Для покупки подписки, пожалуйста, оплатите заказ №{order.id} на сумму {order.amount}$. (Оплата реализуется отдельно)")
+    await callback.message.answer(
+        f"Для покупки подписки, пожалуйста, оплатите заказ №{order.id} на сумму {order.amount}$. (Оплата реализуется отдельно)"
+    )
 
 # --- Startup / Shutdown ---
 async def on_startup(app: web.Application):
@@ -106,6 +109,7 @@ async def on_shutdown(app: web.Application):
     await bot.delete_webhook()
     await bot.session.close()
 
+# --- Запуск приложения ---
 app = web.Application()
 app.on_startup.append(on_startup)
 app.on_shutdown.append(on_shutdown)
@@ -114,4 +118,5 @@ SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
 
 if __name__ == "__main__":
     setup_application(app, dp, bot=bot)
+    logger.info(f"Бот запущен на порту {PORT}")
     web.run_app(app, host="0.0.0.0", port=PORT)
