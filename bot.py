@@ -1,5 +1,7 @@
 import os
 import logging
+import aiohttp  # Добавлено для загрузки текста с Google Drive
+
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import BotCommand
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -74,10 +76,32 @@ async def admin_check_user(callback: types.CallbackQuery):
         await callback.message.answer("Пользователь не найден.")
 
 # --- Обработчики пользовательских кнопок ---
+
 @dp.callback_query(F.data == "read_chapter_1")
 async def user_read_chapter_1(callback: types.CallbackQuery):
     await callback.answer()
-    await callback.message.answer("Вот текст Главы 1... (замени на реальный)")
+
+    GOOGLE_FILE_ID = "13bEJM5s6kmexUHW_MCMfbm1TnXRIrLip"
+    file_url = f"https://drive.google.com/uc?export=download&id={GOOGLE_FILE_ID}"
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(file_url) as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+
+                    # Отправка текста частями, если превышает лимит
+                    if len(text) <= 4096:
+                        await callback.message.answer(text)
+                    else:
+                        parts = [text[i:i+4096] for i in range(0, len(text), 4096)]
+                        for part in parts:
+                            await callback.message.answer(part)
+                else:
+                    await callback.message.answer("Не удалось загрузить главу. Попробуйте позже.")
+    except Exception as e:
+        logging.error(f"Ошибка при загрузке главы: {e}")
+        await callback.message.answer("Произошла ошибка при загрузке текста.")
 
 @dp.callback_query(F.data == "full_access")
 async def user_full_access(callback: types.CallbackQuery):
