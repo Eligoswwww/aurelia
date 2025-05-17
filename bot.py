@@ -5,7 +5,6 @@ from aiogram.types import BotCommand
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime
@@ -16,16 +15,14 @@ from payments.orders import create_order, mark_order_paid
 from keyboards.admin import ADMIN_PANEL
 from keyboards.user import USER_PANEL
 
-# --- Загрузка переменных окружения ---
-load_dotenv()
-
+# --- Получение переменных окружения ---
 TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 PORT = int(os.getenv("PORT", "10000"))
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 if not TOKEN or not WEBHOOK_URL or not ADMIN_ID:
-    raise ValueError("BOT_TOKEN, WEBHOOK_URL и ADMIN_ID должны быть заданы")
+    raise ValueError("BOT_TOKEN, WEBHOOK_URL и ADMIN_ID должны быть заданы через переменные окружения")
 
 # --- Настройка логгирования ---
 logging.basicConfig(level=logging.INFO)
