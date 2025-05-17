@@ -32,11 +32,11 @@ logger = logging.getLogger(__name__)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
-# --- Обработка команды /start ---
+# --- Импорт фильтра команд ---
 from aiogram.filters import Command
 
+# --- Обработка команды /start ---
 @dp.message(Command("start"))
-
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     if user_id == ADMIN_ID:
