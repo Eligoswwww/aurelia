@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from aurelia.db.models import Order, UserPurchase, User
+from db.models import Order, UserPurchase, User
 from sqlalchemy import select
 from datetime import datetime, timedelta
 
