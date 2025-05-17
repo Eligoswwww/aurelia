@@ -30,7 +30,7 @@ dp = Dispatcher(storage=MemoryStorage())
 # ✅ Обработчик команды /start с фильтром aiogram 3.x
 @dp.message(F.text == "/start")
 async def cmd_start(message: types.Message):
-    await message.answer("Привет! Я бот проекта AURELIA.")
+    await message.answer("Привет! Я протокол AURELIA.")
 
 # 🚀 При старте приложения — устанавливаем webhook
 async def on_startup(app: web.Application):
