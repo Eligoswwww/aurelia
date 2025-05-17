@@ -13,9 +13,9 @@ from datetime import datetime
 
 from db.session import async_session
 from db.models import User, UserPurchase, BookPart
-from payments.orders import create_order, mark_order_paid
+from payments.orders import create_order, mark_order_paid, pay_and_unlock_full_book
 from keyboards.admin import ADMIN_PANEL
-from keyboards.user import USER_PANEL
+from keyboards.user import USER_PANEL, FULL_ACCESS_PANEL
 
 # --- Получение переменных окружения ---
 TOKEN = os.getenv("BOT_TOKEN")
@@ -76,6 +76,35 @@ async def admin_check_user(callback: types.CallbackQuery):
         await callback.message.answer(f"Пользователь {user.telegram_id}: {status}, действует до: {expire}")
     else:
         await callback.message.answer("Пользователь не найден.")
+
+@dp.callback_query(F.data == "full_access")
+async def user_full_access(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
+    await callback.answer("Создаём заказ...")
+
+    async with async_session() as session:
+        # Создание заказа
+        order = await create_order(
+            session,
+            user_id=user_id,
+            order_type="full_access",
+            amount=15.0,
+        )
+        # Платим (заглушка)
+        success = await pay_and_unlock_full_book(session, user_id, order)
+
+    if success:
+        await callback.message.answer(
+            "✅ Полный доступ получен! Теперь вы можете читать всю книгу.",
+            reply_markup=FULL_ACCESS_PANEL
+        )
+    else:
+        await callback.message.answer("❌ Не удалось оплатить. Попробуйте позже.")
+
+@dp.callback_query(F.data == "read_full_book")
+async def user_read_full_book(callback: types.CallbackQuery):
+    await callback.answer()
+    await callback.message.answer("📖 Вот текст всей книги... (вставь сюда реальный текст или загрузку)")
 
 # --- Обработчики пользовательских кнопок ---
 
