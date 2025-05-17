@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.middleware.logging import LoggingMiddleware
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
