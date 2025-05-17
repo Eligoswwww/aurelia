@@ -33,7 +33,10 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 # --- Обработка команды /start ---
-@dp.message(commands=["start"])
+from aiogram.filters import Command
+
+@dp.message(Command("start"))
+
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     if user_id == ADMIN_ID:
