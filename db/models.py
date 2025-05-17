@@ -12,6 +12,7 @@ class User(Base):
     username: Mapped[str | None] = mapped_column(String(50), nullable=True)
     subscribed: Mapped[bool] = mapped_column(Boolean, default=False)
     subscription_expire: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    has_full_access = Column(Boolean, default=False)
 
     purchases = relationship("UserPurchase", back_populates="user")
     orders = relationship("Order", back_populates="user")
