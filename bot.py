@@ -1,6 +1,6 @@
 import os
 import logging
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import BotCommand
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
@@ -21,10 +21,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage)
 
-# Пример команды /start
-@dp.message(commands=["start"])
+# Пример команды /start — фильтрация с помощью F.commands
+@dp.message(F.commands == ["start"])
 async def cmd_start(message: types.Message):
     await message.answer("Привет! Я бот проекта AURELIA.")
 
@@ -41,6 +42,7 @@ app = web.Application()
 app.on_startup.append(on_startup)
 app.on_shutdown.append(on_shutdown)
 
+# Регистрируем обработчик webhook на путь /webhook
 SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
 
 if __name__ == "__main__":
