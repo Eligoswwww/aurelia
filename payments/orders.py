@@ -47,3 +47,22 @@ async def mark_order_paid(session: AsyncSession, payment_id: str):
 
     await session.commit()
     return True
+# payments/orders.py
+
+from .mock_gateway import process_payment
+
+async def pay_and_unlock_full_book(session, user_id: int, order):
+    success = await process_payment(order.id, order.amount)
+    if not success:
+        return False
+
+    # Отметить заказ как оплаченный
+    await mark_order_paid(session, order.id)
+
+    # Обновить пользователя — дать доступ к полной книге
+    result = await session.execute(select(User).where(User.telegram_id == user_id))
+    user = result.scalar_one_or_none()
+    if user:
+        user.has_full_access = True
+        await session.commit()
+    return True
