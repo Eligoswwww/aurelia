@@ -41,10 +41,12 @@ from aiogram.filters import Command
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
+    text = "Привет! Выберите действие:"
     if user_id == ADMIN_ID:
         await message.answer("Админ-панель", reply_markup=ADMIN_PANEL)
+        await message.answer(text, reply_markup=USER_PANEL)
     else:
-        await message.answer("Привет! Выберите действие:", reply_markup=USER_PANEL)
+        await message.answer(text, reply_markup=USER_PANEL)
 
 # --- Обработчики админских кнопок ---
 @dp.callback_query(F.data == "admin_create_subscription")
