@@ -45,7 +45,6 @@ async def cmd_start(message: types.Message):
 @dp.callback_query(F.data == "admin_create_subscription")
 async def admin_create_subscription(callback: types.CallbackQuery):
     await callback.answer()
-    # Пример: создаем заказ подписки за 10$
     async with async_session() as session:
         order = await create_order(session, user_id=ADMIN_ID, order_type="subscription", amount=10.0)
     await callback.message.answer(f"Создан заказ подписки с ID {order.id}")
@@ -53,7 +52,6 @@ async def admin_create_subscription(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "admin_create_chapter")
 async def admin_create_chapter(callback: types.CallbackQuery):
     await callback.answer()
-    # Пример: выбираем часть книги с id=1 (замени по необходимости)
     part_id = 1
     async with async_session() as session:
         order = await create_order(session, user_id=ADMIN_ID, order_type="chapter", amount=2.0, part_id=part_id)
@@ -62,7 +60,6 @@ async def admin_create_chapter(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "admin_check_user")
 async def admin_check_user(callback: types.CallbackQuery):
     await callback.answer()
-    # Просто пример - проверим подписку на ADMIN_ID
     async with async_session() as session:
         result = await session.execute(select(User).where(User.telegram_id == ADMIN_ID))
         user = result.scalar_one_or_none()
@@ -74,39 +71,28 @@ async def admin_check_user(callback: types.CallbackQuery):
         await callback.message.answer("Пользователь не найден.")
 
 # --- Обработчики пользовательских кнопок ---
-@dp.callback_query(F.data == "user_my_access")
-async def user_my_access(callback: types.CallbackQuery):
-    user_id = callback.from_user.id
-    async with async_session() as session:
-        result = await session.execute(select(User).where(User.telegram_id == user_id))
-        user = result.scalar_one_or_none()
-        if not user:
-            await callback.message.answer("Вы не зарегистрированы в системе.")
-            return
-        
-        text = f"Подписка: {'активна' if user.subscribed else 'отсутствует'}\n"
-        if user.subscription_expire:
-            text += f"Действует до: {user.subscription_expire.strftime('%Y-%m-%d %H:%M')}\n"
-        
-        # Покупки пользователя
-        purchases = await session.execute(
-            select(UserPurchase).where(UserPurchase.user_id == user.id)
-        )
-        parts = purchases.scalars().all()
-        if parts:
-            text += "Купленные главы:\n"
-            for p in parts:
-                text += f"- {p.part.title}\n"
-        else:
-            text += "Нет купленных глав."
-        
-        await callback.message.answer(text)
+@dp.callback_query(F.data == "read_chapter_1")
+async def user_read_chapter_1(callback: types.CallbackQuery):
+    await callback.answer()
+    # Здесь логика отправки текста первой главы (пример)
+    await callback.message.answer("Вот текст Главы 1... (замени на реальный)")
 
-@dp.callback_query(F.data == "user_buy_subscription")
-async def user_buy_subscription(callback: types.CallbackQuery):
+@dp.callback_query(F.data == "full_access")
+async def user_full_access(callback: types.CallbackQuery):
+    await callback.answer()
+    await callback.message.answer("Полный доступ пока не реализован. Скоро будет!")
+
+@dp.callback_query(F.data == "open_store")
+async def user_open_store(callback: types.CallbackQuery):
+    await callback.answer()
+    # Пример ссылки на магазин
+    await callback.message.answer("Перейдите в наш магазин: https://example.com/store")
+
+@dp.callback_query(F.data == "subscribe")
+async def user_subscribe(callback: types.CallbackQuery):
     user_id = callback.from_user.id
+    await callback.answer()
     async with async_session() as session:
-        # Создаем заказ подписки (цена примерная)
         order = await create_order(session, user_id=user_id, order_type="subscription", amount=10.0)
     await callback.message.answer(f"Для покупки подписки, пожалуйста, оплатите заказ №{order.id} на сумму {order.amount}$. (Оплата реализуется отдельно)")
 
