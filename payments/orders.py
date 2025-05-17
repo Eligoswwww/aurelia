@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import Order, UserPurchase, User
 from sqlalchemy import select
 from datetime import datetime, timedelta
+from payments.paypal import create_paypal_order, capture_paypal_order
+from db.models import User
 
 async def create_order(
     session: AsyncSession,
@@ -66,3 +68,30 @@ async def pay_and_unlock_full_book(session, user_id: int, order):
         user.has_full_access = True
         await session.commit()
     return True
+from payments.paypal import create_paypal_order, capture_paypal_order
+from db.models import User
+
+async def create_paypal_payment(session, user_id: int, amount: float, return_url: str, cancel_url: str):
+    # Создаем заказ в базе
+    order = await create_order(session, user_id=user_id, order_type="full_access", amount=amount)
+    paypal_order_id, approve_url = await create_paypal_order(amount, return_url, cancel_url)
+    if not approve_url:
+        return None, None
+
+    # Сохрани paypal_order_id в заказе (если поле есть)
+    order.paypal_order_id = paypal_order_id
+    await session.commit()
+    return order, approve_url
+
+async def mark_order_paid_by_paypal(session, paypal_order_id: str):
+    result = await session.execute(select(User).join(UserPurchase).where(UserPurchase.paypal_order_id == paypal_order_id))
+    purchase = result.scalar_one_or_none()
+    if purchase:
+        await mark_order_paid(session, purchase.id)
+        # Даем доступ пользователю
+        user = await session.get(User, purchase.user_id)
+        if user:
+            user.has_full_access = True
+            await session.commit()
+        return True
+    return False
