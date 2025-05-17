@@ -6,5 +6,9 @@ USER_PANEL = InlineKeyboardMarkup(
         [InlineKeyboardButton(text="Полный доступ", callback_data="full_access")],
         [InlineKeyboardButton(text="Посмотреть в магазине", url="https://a.co/d/0lsFYNT")],
         [InlineKeyboardButton(text="Подписаться", callback_data="subscribe")],
+        # keyboards/user.py
+FULL_ACCESS_PANEL = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="Читать всю книгу", callback_data="read_full_book")],
     ]
 )
