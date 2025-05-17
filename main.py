@@ -1,11 +1,12 @@
 import logging
 import sqlite3
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+import asyncio
 
 API_TOKEN = '7856167694:AAGBvMeEIBHFPeCpd6cob05vxaLIUDhay-0'  # <-- вставь сюда токен бота
 
@@ -204,5 +205,8 @@ async def chat_with_author_handler(message: types.Message):
     await message.answer("Напиши сюда свой вопрос или сообщение автору. Ответ придет в течение 24 часов.")
 
 # ======== Запуск бота ========
+async def main():
+    await dp.start_polling(skip_updates=True)
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
