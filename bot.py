@@ -1,5 +1,7 @@
+# bot.py
 import os
 import logging
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
@@ -7,7 +9,7 @@ import handlers.admin as admin
 import handlers.user as user
 import handlers.paypal as paypal
 
-# --- Конфиг (ПЕРВЫМ ДЕЛОМ) ---
+# --- Конфигурация ---
 TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 PORT = int(os.getenv("PORT", "10000"))
@@ -40,16 +42,16 @@ async def on_shutdown(app: web.Application):
     await bot.delete_webhook()
     await bot.session.close()
 
-# --- Создаем веб-приложение aiohttp ---
+# --- AIOHTTP-приложение ---
 app = web.Application()
 app.on_startup.append(on_startup)
 app.on_shutdown.append(on_shutdown)
 
-# --- Роуты для PayPal ---
+# --- Роуты PayPal ---
 app.router.add_get("/paypal-success", paypal.paypal_success)
 app.router.add_get("/paypal-cancel", paypal.paypal_cancel)
 
-# --- Регистрируем webhook ---
+# --- Webhook ---
 SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
 
 if __name__ == "__main__":
