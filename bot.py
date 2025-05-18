@@ -33,6 +33,8 @@ admin.register_handlers(dp)
 user.register_handlers(dp)
 paypal.register_handlers(dp)
 nemo.register_handlers(dp)
+test.register_handlers(dp)
+
 
 # --- События старта и остановки ---
 async def on_startup(app: web.Application):
