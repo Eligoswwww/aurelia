@@ -9,4 +9,5 @@ async def admin_command(message: types.Message):
     await message.answer("Admin команда выполнена!")
 
 def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(admin_command, commands=["admin"])
+    # Здесь исправлено с register_message_handler на dp.message.register
+    dp.message.register(admin_command, commands=["admin"])
