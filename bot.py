@@ -202,6 +202,9 @@ async def on_shutdown(app: web.Application):
 app = web.Application()
 app.on_startup.append(on_startup)
 app.on_shutdown.append(on_shutdown)
+app.router.add_get("/paypal-success", paypal_success)
+app.router.add_get("/paypal-cancel", paypal_cancel)
+
 
 SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
 
