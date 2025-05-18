@@ -1,18 +1,15 @@
 import os
 import logging
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 import handlers.admin as admin
 import handlers.user as user
 import handlers.paypal as paypal
-import handlers.nemo as nemo# импортируешь, но НЕ вызываешь здесь
-from aiogram import Bot, Dispatcher
+import handlers.nemo as nemo
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
-
-# --- Конфиг ---
+# --- Конфиг (ПЕРВЫМ ДЕЛОМ) ---
 TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 PORT = int(os.getenv("PORT", "10000"))
@@ -27,13 +24,13 @@ logger = logging.getLogger(__name__)
 
 # --- Инициализация бота и диспетчера ---
 bot = Bot(token=TOKEN)
-dp = Dispatcher(storage=MemoryStorage())  # создаём dp
+dp = Dispatcher(storage=MemoryStorage())
 
 # --- Регистрация обработчиков ---
 admin.register_handlers(dp)
 user.register_handlers(dp)
 paypal.register_handlers(dp)
-nemo.register_handlers(dp)  # <-- теперь здесь всё ок, dp уже есть
+nemo.register_handlers(dp)
 
 # --- События старта и остановки ---
 async def on_startup(app: web.Application):
