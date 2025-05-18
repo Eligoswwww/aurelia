@@ -1,3 +1,4 @@
+# keyboards/user.py
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -67,7 +68,6 @@ async def read_full_book_handler(callback: types.CallbackQuery):
     await callback.answer()
 
 def register_handlers(dp):
-    # Регистрация callback_query обработчиков с фильтрами по callback_data
     dp.callback_query.register(admin_start_handler, lambda c: c.data == "admin_start")
     dp.callback_query.register(show_admin_panel_handler, lambda c: c.data == "show_admin_panel")
     dp.callback_query.register(show_user_panel_handler, lambda c: c.data == "show_user_panel")
