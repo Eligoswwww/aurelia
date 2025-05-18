@@ -1,9 +1,12 @@
-from aiogram import Dispatcher, types
+from aiogram import types
 from aiogram.filters import Command
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def admin_command(message: types.Message):
-    # твой код для обработки команды /admin
-    await message.answer("Admin panel accessed")
+    logger.info("admin_command вызван")
+    await message.answer("Admin команда выполнена!")
 
-def register_handlers(dp: Dispatcher):
+def register_handlers(dp):
     dp.message.register(admin_command, Command(commands=["admin"]))
