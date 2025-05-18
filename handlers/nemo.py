@@ -49,3 +49,10 @@ async def nemo_command(message: types.Message):
 def register_handlers(dp: Dispatcher):
     # Регистрируем обработчик на все текстовые сообщения
     dp.message.register(nemo_command)
+
+import logging
+logger = logging.getLogger(__name__)
+
+async def nemo_command(message: types.Message):
+    logger.info(f"Received message: {message.text}")
+    ...
