@@ -10,6 +10,8 @@ from aiohttp import web
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiohttp import web
 
 from db.session import async_session
 from db.models import User, UserPurchase, BookPart
@@ -90,23 +92,53 @@ async def user_full_access(callback: types.CallbackQuery):
             order_type="full_access",
             amount=15.0,
         )
-        # Платим (заглушка)
-        success = await pay_and_unlock_full_book(session, user_id, order)
-
-    if success:
-        await callback.message.answer(
-            "✅ Полный доступ получен! Теперь вы можете читать всю книгу.",
-            reply_markup=FULL_ACCESS_PANEL
-        )
-    else:
-        await callback.message.answer("❌ Не удалось оплатить. Попробуйте позже.")
-
-@dp.callback_query(F.data == "read_full_book")
-async def user_read_full_book(callback: types.CallbackQuery):
+# В обработчике кнопки "Полный доступ":
+@dp.callback_query(F.data == "full_access")
+async def full_access(callback: types.CallbackQuery):
+    user_id = callback.from_user.id
     await callback.answer()
-    await callback.message.answer("📖 Вот текст всей книги... (вставь сюда реальный текст или загрузку)")
 
-# --- Обработчики пользовательских кнопок ---
+    async with async_session() as session:
+        # Ссылки редиректа после оплаты
+        domain = os.getenv("WEBHOOK_DOMAIN")  # Домен твоего бота/сервера
+        return_url = f"{domain}/paypal-success?user_id={user_id}"
+        cancel_url = f"{domain}/paypal-cancel"
+
+        order, approve_url = await create_paypal_payment(session, user_id, 15.0, return_url, cancel_url)
+        if approve_url:
+            await callback.message.answer(
+                f"Для оплаты перейдите по ссылке:\n{approve_url}\n\nПосле оплаты вы получите доступ к книге."
+            )
+        else:
+            await callback.message.answer("Ошибка создания платежа, попробуйте позже.")
+
+# Webhook для PayPal (в файле bot.py или отдельном файле с web сервером)
+
+async def paypal_success(request: web.Request):
+    user_id = int(request.query.get("user_id"))
+    token = request.query.get("token")  # PayPal order id
+    if not token or not user_id:
+        return web.Response(text="Invalid parameters", status=400)
+
+    # Завершаем оплату через PayPal API
+    success = await capture_paypal_order(token)
+    if not success:
+        return web.Response(text="Payment capture failed", status=400)
+
+    # Отмечаем заказ как оплаченный
+    async with async_session() as session:
+        await mark_order_paid_by_paypal(session, token)
+
+    # Можно отправить сообщение пользователю через бота (если знаешь user_id)
+    try:
+        await bot.send_message(user_id, "Оплата прошла успешно! Теперь у вас полный доступ к книге.")
+    except Exception as e:
+        print(f"Ошибка при отправке сообщения: {e}")
+
+    return web.Response(text="Payment successful. You can close this page.")
+
+async def paypal_cancel(request: web.Request):
+    return web.Response(text="Оплата была отменена пользователем.")# --- Обработчики пользовательских кнопок ---
 
 @dp.callback_query(F.data == "read_chapter_1")
 async def user_read_chapter_1(callback: types.CallbackQuery):
