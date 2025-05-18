@@ -6,3 +6,6 @@ alembic==1.13.1
 pycryptodome==3.20.0
 asyncpg==0.29.0
 requests
+
+chatterbot==1.0.5
+chatterbot_corpus==1.2.0
