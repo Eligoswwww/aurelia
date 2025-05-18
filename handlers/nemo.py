@@ -13,10 +13,12 @@ headers = {
 def query_huggingface(payload):
     url = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
     response = requests.post(url, headers=headers, json=payload, timeout=30)
+    print(f"HTTP status: {response.status_code}")
+    print(f"Response text: '{response.text}'")  # Выведет что реально пришло от сервера
     try:
         return response.json()
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"{e} | response text: {response.text}"}
 
 async def nemo_command(message: types.Message):
     print(f"Получен запрос: {message.text}")  # <== отладка
