@@ -1,6 +1,6 @@
 from aiogram import Dispatcher, types
 
-ADMIN_IDS = [123456789]  # Замени на реальные ID
+ADMIN_IDS = [7617589302]  # Замени на реальные ID
 
 async def admin_command(message: types.Message):
     if message.from_user.id not in ADMIN_IDS:
