@@ -14,7 +14,7 @@ class User(Base):
     subscription_expire: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     has_full_access = Column(Boolean, default=False)
 
-    purchases = relationship("UserPurchase", back_populates="user")
+    purchases = paypal_order_id = Column(String, unique=True, nullable=True)
     orders = relationship("Order", back_populates="user")
 
 class BookPart(Base):
