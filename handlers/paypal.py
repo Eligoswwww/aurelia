@@ -6,12 +6,8 @@ from utils.paypal_api import create_paypal_order, capture_paypal_order  # тво
 
 logger = logging.getLogger(__name__)
 
-def register_handlers(dp):
-    dp.message_handler(commands=["pay"])(pay_command)
-
 async def pay_command(message: types.Message):
     amount = 5.0  # Сумма для примера
-    # Ссылки на редиректы после оплаты
     return_url = "https://yourdomain.com/paypal-success"
     cancel_url = "https://yourdomain.com/paypal-cancel"
 
@@ -21,10 +17,12 @@ async def pay_command(message: types.Message):
     else:
         await message.answer("Не удалось создать заказ PayPal, попробуйте позже.")
 
+def register_handlers(dp):
+    dp.message.register(pay_command, commands=["pay"])
+
 # aiohttp handlers для PayPal webhook или редиректов
 
 async def paypal_success(request: web.Request):
-    # здесь обычно берется order_id из параметров запроса
     order_id = request.query.get("token")
     if not order_id:
         return web.Response(text="Order ID не указан", status=400)
@@ -39,3 +37,9 @@ async def paypal_success(request: web.Request):
 
 async def paypal_cancel(request: web.Request):
     return web.Response(text="Оплата отменена пользователем.")
+
+# В основном aiohttp-приложении надо зарегистрировать маршруты, например:
+
+# app = web.Application()
+# app.router.add_get('/paypal-success', paypal_success)
+# app.router.add_get('/paypal-cancel', paypal_cancel)
