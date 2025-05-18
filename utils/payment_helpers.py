@@ -5,7 +5,7 @@ import logging
 
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_SECRET = os.getenv("PAYPAL_SECRET")
-PAYPAL_API_BASE = "https://api-m.sandbox.paypal.com"  # для sandbox, для продакшена — https://api-m.paypal.com
+PAYPAL_API_BASE = "https://api-m.sandbox.paypal.com"  # Sandbox, для продакшена — https://api-m.paypal.com
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,12 @@ async def get_access_token():
             if resp.status != 200:
                 logger.error(f"PayPal get_access_token error: {res}")
                 return None
-            return res["access_token"]
+            return res.get("access_token")
 
 async def create_paypal_order(amount: float, return_url: str, cancel_url: str):
     token = await get_access_token()
     if not token:
-        return None
+        return None, None  # чтобы соответствовать интерфейсу вызывающей функции
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -52,12 +52,11 @@ async def create_paypal_order(amount: float, return_url: str, cancel_url: str):
             res = await resp.json()
             if resp.status != 201:
                 logger.error(f"PayPal create order error: {res}")
-                return None
-            # Ищем ссылку на approve (куда отправить пользователя)
+                return None, None
             for link in res.get("links", []):
-                if link["rel"] == "approve":
-                    return res["id"], link["href"]
-            return res["id"], None
+                if link.get("rel") == "approve":
+                    return res.get("id"), link.get("href")
+            return res.get("id"), None
 
 async def capture_paypal_order(order_id: str):
     token = await get_access_token()
@@ -73,5 +72,6 @@ async def capture_paypal_order(order_id: str):
             if resp.status != 201:
                 logger.error(f"PayPal capture order error: {res}")
                 return False
-            # Можно проверить статус и т.п.
-            return True
+            # Дополнительно можно проверить статус в ответе для уверенности:
+            status = res.get("status")
+            return status == "COMPLETED"
