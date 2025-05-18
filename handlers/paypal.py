@@ -1,5 +1,6 @@
 from aiogram import Dispatcher, types
 from aiogram.filters import Command
+from aiohttp import web  # <- вот этот импорт добавь
 
 async def pay_command(message: types.Message):
     amount = 5.0
@@ -32,9 +33,3 @@ async def paypal_success(request: web.Request):
 
 async def paypal_cancel(request: web.Request):
     return web.Response(text="Оплата отменена пользователем.")
-
-# В основном aiohttp-приложении надо зарегистрировать маршруты, например:
-
-# app = web.Application()
-# app.router.add_get('/paypal-success', paypal_success)
-# app.router.add_get('/paypal-cancel', paypal_cancel)
