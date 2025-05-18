@@ -1,3 +1,4 @@
+import os
 from aiogram import types, F
 from aiogram.filters import Command
 from db.session import async_session
