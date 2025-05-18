@@ -19,10 +19,12 @@ def query_huggingface(payload):
         response = requests.post(url, headers=headers, json=payload, timeout=30)
         logger.info(f"HTTP status: {response.status_code}")
         logger.info(f"Response text: '{response.text}'")
+        if response.status_code != 200:
+            return {"error": f"HTTP {response.status_code}: {response.text}"}
         return response.json()
     except Exception as e:
         logger.error(f"Ошибка при запросе к Huggingface: {e}")
-        return {"error": f"{e}"}
+        return {"error": str(e)}
 
 async def nemo_command(message: types.Message):
     prompt = message.text.replace("/nemo", "").strip()
