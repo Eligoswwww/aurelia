@@ -4,8 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-
 from handlers import admin, user, paypal  # здесь импортируем модули с обработчиками
+from aiogram import Dispatcher
+import handlers.admin as admin
+
+dp = Dispatcher()
+
+admin.register_handlers(dp)
 
 # --- Конфиг ---
 TOKEN = os.getenv("BOT_TOKEN")
