@@ -6,7 +6,8 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 from aiohttp import web
 import handlers.admin as admin
 import handlers.user as user
-import handlers.paypal as paypalimport handlers.nemo as nemo
+import handlers.paypal as paypal
+import handlers.nemo as nemo
 
 nemo.register_handlers(dp)
 
