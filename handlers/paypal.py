@@ -1,13 +1,8 @@
-from aiogram import types
-from aiohttp import web
-import logging
-
-from utils.paypal_api import create_paypal_order, capture_paypal_order  # твой модуль с функциями
-
-logger = logging.getLogger(__name__)
+from aiogram import Dispatcher, types
+from aiogram.filters import Command
 
 async def pay_command(message: types.Message):
-    amount = 5.0  # Сумма для примера
+    amount = 5.0
     return_url = "https://yourdomain.com/paypal-success"
     cancel_url = "https://yourdomain.com/paypal-cancel"
 
@@ -17,8 +12,8 @@ async def pay_command(message: types.Message):
     else:
         await message.answer("Не удалось создать заказ PayPal, попробуйте позже.")
 
-def register_handlers(dp):
-    dp.message.register(pay_command, commands=["pay"])
+def register_handlers(dp: Dispatcher):
+    dp.message.register(pay_command, Command(commands=["pay"]))
 
 # aiohttp handlers для PayPal webhook или редиректов
 
