@@ -5,7 +5,7 @@ from aiogram import types, F
 from db.session import async_session
 from payments.orders import create_order
 from keyboards.user import USER_PANEL, FULL_ACCESS_PANEL
-from utils.payment_helpers import create_paypal_payment  # будет описан ниже
+from utils.payment_helpers import create_paypal_order  # исправлено на create_paypal_order
 
 def register_handlers(dp):
     dp.callback_query.register(full_access, F.data == "full_access")
@@ -22,7 +22,7 @@ async def full_access(callback: types.CallbackQuery):
         return_url = f"{domain}/paypal-success?user_id={user_id}"
         cancel_url = f"{domain}/paypal-cancel"
 
-        order, approve_url = await create_paypal_payment(session, user_id, 15.0, return_url, cancel_url)
+        order_id, approve_url = await create_paypal_order(15.0, return_url, cancel_url)
         if approve_url:
             await callback.message.answer(
                 f"Для оплаты перейдите по ссылке:\n{approve_url}\n\nПосле оплаты вы получите доступ к книге."
