@@ -19,6 +19,10 @@ def query_huggingface(payload):
         return {"error": str(e)}
 
 async def nemo_command(message: types.Message):
+    print(f"Получен запрос: {message.text}")  # <== отладка
+    ...
+
+async def nemo_command(message: types.Message):
     prompt = message.text.replace("/nemo", "").strip()
     if not prompt:
         await message.answer("✍️ Напиши запрос после команды, например:\n/nemo Объясни квантовую механику простыми словами")
