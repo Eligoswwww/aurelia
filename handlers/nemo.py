@@ -1,5 +1,6 @@
 import os
 import requests
+import logging
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 
@@ -10,19 +11,18 @@ headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
 }
 
+logger = logging.getLogger(__name__)
+
 def query_huggingface(payload):
     url = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
-    response = requests.post(url, headers=headers, json=payload, timeout=30)
-    print(f"HTTP status: {response.status_code}")
-    print(f"Response text: '{response.text}'")  # Выведет что реально пришло от сервера
     try:
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        logger.info(f"HTTP status: {response.status_code}")
+        logger.info(f"Response text: '{response.text}'")
         return response.json()
     except Exception as e:
-        return {"error": f"{e} | response text: {response.text}"}
-
-async def nemo_command(message: types.Message):
-    print(f"Получен запрос: {message.text}")  # <== отладка
-    ...
+        logger.error(f"Ошибка при запросе к Huggingface: {e}")
+        return {"error": f"{e}"}
 
 async def nemo_command(message: types.Message):
     prompt = message.text.replace("/nemo", "").strip()
