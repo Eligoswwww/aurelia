@@ -7,9 +7,7 @@ from aiohttp import web
 import handlers.admin as admin
 import handlers.user as user
 import handlers.paypal as paypal
-import handlers.nemo as nemo
-
-nemo.register_handlers(dp)
+import handlers.nemo as nemo  # импортируешь, но НЕ вызываешь здесь
 
 # --- Конфиг ---
 TOKEN = os.getenv("BOT_TOKEN")
@@ -26,12 +24,13 @@ logger = logging.getLogger(__name__)
 
 # --- Инициализация бота и диспетчера ---
 bot = Bot(token=TOKEN)
-dp = Dispatcher(storage=MemoryStorage())  # создаём диспетчер один раз
+dp = Dispatcher(storage=MemoryStorage())  # создаём dp
 
 # --- Регистрация обработчиков ---
 admin.register_handlers(dp)
 user.register_handlers(dp)
 paypal.register_handlers(dp)
+nemo.register_handlers(dp)  # <-- теперь здесь всё ок, dp уже есть
 
 # --- События старта и остановки ---
 async def on_startup(app: web.Application):
