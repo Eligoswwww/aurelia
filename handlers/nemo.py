@@ -2,7 +2,6 @@ import os
 import requests
 import logging
 from aiogram import types, Dispatcher
-from aiogram.filters import Command
 
 HF_TOKEN = os.getenv("HF_TOKEN")
 MODEL_ID = "Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24"
@@ -27,9 +26,9 @@ def query_huggingface(payload):
         return {"error": str(e)}
 
 async def nemo_command(message: types.Message):
-    prompt = message.text.replace("/nemo", "").strip()
+    prompt = message.text.strip()
     if not prompt:
-        await message.answer("✍️ Напиши запрос после команды, например:\n/nemo Объясни квантовую механику простыми словами")
+        await message.answer("✍️ Пожалуйста, напишите что-нибудь, чтобы я ответил.")
         return
 
     await message.answer("🤖 Думаю...")
@@ -48,4 +47,5 @@ async def nemo_command(message: types.Message):
     await message.answer(answer)
 
 def register_handlers(dp: Dispatcher):
-    dp.message.register(nemo_command, Command(commands=["nemo"]))
+    # Регистрируем обработчик на все текстовые сообщения
+    dp.message.register(nemo_command)
