@@ -1,13 +1,16 @@
 import os
 import logging
-from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 import handlers.admin as admin
 import handlers.user as user
 import handlers.paypal as paypal
-import handlers.nemo as nemo  # импортируешь, но НЕ вызываешь здесь
+import handlers.nemo as nemo# импортируешь, но НЕ вызываешь здесь
+from aiogram import Bot, Dispatcher
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
 # --- Конфиг ---
 TOKEN = os.getenv("BOT_TOKEN")
