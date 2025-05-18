@@ -8,6 +8,8 @@ import handlers.admin as admin
 import handlers.user as user
 import handlers.paypal as paypal
 import handlers.nemo as nemo
+import handlers.test as test
+
 
 # --- Конфиг (ПЕРВЫМ ДЕЛОМ) ---
 TOKEN = os.getenv("BOT_TOKEN")
